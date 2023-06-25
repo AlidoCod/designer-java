@@ -33,7 +33,8 @@ public class BeanCopyUtilsTest {
             testDto.setUsername("test");
             source.add(testDto);
         }
-        List<Test> target = BeanCopyUtils.copyList(source, Test.class);
+        //List<Test> target = BeanCopyUtils.copyList(source, Test.class);
+        List<Test> target = BeanCopyUtils.copy(source, List.class);
         target.forEach(o -> log.info(o.toString()));
     }
 }

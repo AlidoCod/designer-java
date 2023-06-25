@@ -1,5 +1,6 @@
-package com.example.base.annotation;
+package com.example.base.annotation.aop;
 
+import com.example.base.annotation.Aggregation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,10 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import org.aspectj.lang.reflect.*;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -27,24 +28,20 @@ public class LogAspect {
 
     private final ObjectMapper objectMapper;
 
-    @Around(value = "@annotation(com.example.base.annotation.Log)")
-    public Object log(ProceedingJoinPoint joinPoint) throws Throwable {
-
+    @Around(value = "@annotation(com.example.base.annotation.Aggregation)")
+    public Object aggregation(ProceedingJoinPoint joinPoint) throws Throwable {
         log.debug("==begin");
-
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         // 获取反射方法
         Method method = signature.getMethod();
-        // 获取注解
-        Log annotation = method.getAnnotation(Log.class);
-        String[] messages = annotation.messages();
+        Aggregation annotation = method.getAnnotation(Aggregation.class);
 
         // 1. 获取请求类+方法名
         String className = joinPoint.getTarget().getClass().getName();
         String methodName = method.getName();
-        String classAndMethodName = className + "_" + methodName;
 
-        log.debug("[request path]: {}()", classAndMethodName);
+        log.debug("[request class]: {}", className);
+        log.debug("[request path]: /{}", methodName);
 
         // 2. 获取请求参数, JSON解析前的参数
         Object[] args = joinPoint.getArgs();
@@ -63,9 +60,11 @@ public class LogAspect {
         long begin = System.currentTimeMillis();
         Object object = joinPoint.proceed();
         log.debug("[exec time]: {}ms", System.currentTimeMillis() - begin);
-        log.debug("[extra message]: {}", Arrays.toString(messages));
+        String[] messages = annotation.messages();
+        if (messages.length != 0) {
+            log.debug("[messages]: {}", Arrays.toString(messages));
+        }
         log.debug("==end");
         return object;
     }
-
 }

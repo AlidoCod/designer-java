@@ -1,4 +1,4 @@
-package com.example.base.vo.result;
+package com.example.base.bean.vo.result;
 
 /**
  * 统一返回结果接口

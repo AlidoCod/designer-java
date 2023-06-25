@@ -22,7 +22,7 @@ import java.lang.annotation.*;
 @Operation
 //返回Json
 @ResponseBody
-public @interface MethodAggregation {
+public @interface Aggregation {
 
     /**
      *  请求路径

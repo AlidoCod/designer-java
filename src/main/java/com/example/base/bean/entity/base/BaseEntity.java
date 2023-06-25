@@ -1,4 +1,4 @@
-package com.example.base.bean.entity;
+package com.example.base.bean.entity.base;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -21,12 +21,23 @@ public class BaseEntity {
     Long id;
 
     /**
-     * 创建
+     * 创建时间
      */
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @TableField(fill = FieldFill.INSERT)
     LocalDateTime createTime;
 
+    /**
+     * 更新时间
+     */
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    LocalDateTime updateTime;
 
+    /**
+     * 逻辑删除字段
+     */
+    int status;
 }

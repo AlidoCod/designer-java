@@ -1,4 +1,4 @@
-package com.example.base.client;
+package com.example.base.client.redis;
 
 import com.example.base.client.bean.Consumer;
 import lombok.RequiredArgsConstructor;

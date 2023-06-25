@@ -1,14 +1,20 @@
-package com.example.base.client;
+package com.example.base.client.redis;
 
 import com.example.base.exception.GlobalRuntimeException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author 雷佳宝
@@ -27,7 +33,7 @@ public class RedisStringClient {
     /**
      * 设置永久Key-Value
      */
-    private <T> void set(String key, T value) {
+    public  <T> void set(String key, T value) {
         stringRedisTemplate.opsForValue().set(key, toJson(value));
     }
 
@@ -36,6 +42,10 @@ public class RedisStringClient {
      */
     public <T> void set(String key, T value, Long time, TimeUnit unit) {
         stringRedisTemplate.opsForValue().set(key, toJson(value), time, unit);
+    }
+
+    public Long getExpire(String key) {
+        return stringRedisTemplate.opsForValue().getOperations().getExpire(key);
     }
 
     /**
@@ -85,6 +95,18 @@ public class RedisStringClient {
             return null;
         }
         return parseJson(value, clazz);
+    }
+
+    public <T> List<T> gets(String pattern, Class<T> clazz) {
+        Set<String> keys = stringRedisTemplate.execute((RedisCallback<Set<String>>) connection -> {
+            Set<String> keysTmp = new HashSet<>();
+            Cursor<byte[]> cursor = connection.scan(ScanOptions.scanOptions().match(pattern).count(1000).build());
+            while (cursor.hasNext()) {
+                keysTmp.add(new String(cursor.next()));
+            }
+            return keysTmp;
+        });
+        return keys.stream().map(o -> get(o, clazz)).collect(Collectors.toList());
     }
 
     public <T> T get(String prefix, String suffix, Class<T> clazz) {

@@ -2,7 +2,7 @@ package com.example.base.conf;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.base.bean.entity.SysUser;
-import com.example.base.bean.entity.base.Role;
+import com.example.base.bean.entity.enums.Role;
 import com.example.base.filter.JwtAuthenticationFilter;
 import com.example.base.repository.SysUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +15,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,14 +25,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class SecuriyConfiguration {
+public class SecurityConfiguration {
 
     final SysUserRepository userRepository;
 
@@ -59,8 +55,8 @@ public class SecuriyConfiguration {
                 .disable()
                 .authorizeHttpRequests()
                 //进行角色权限控制
-                .requestMatchers("/user/**").hasAuthority("User")
-                .requestMatchers("/admin/**").hasAuthority("Admin")
+                .requestMatchers("/user/**").hasAuthority(Role.USER.name())
+                .requestMatchers("/admin/**").hasAuthority(Role.ADMIN.name())
                 //优先级低的规则, 覆盖所有
                 .requestMatchers("/**")
                 .permitAll()
@@ -86,10 +82,7 @@ public class SecuriyConfiguration {
                 .authenticationProvider(authenticationProvider)
                 // 添加JWT过滤器
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-//                .logout()
-//                .logoutUrl("/logout")
-//                .addLogoutHandler(null)
-//                .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext());
+                /*无状态jwt，不需要登出，登出由前端处理*/
         return http.build();
     }
 

@@ -1,4 +1,4 @@
-package org.demo.util;
+package com.example.base.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 /**
  * @author Administrator
  */
-public class IPUtil {
+public class IPUtils {
     static final String UNKNOWN = "unknown";
  
     public static String getIpAddress(HttpServletRequest request) {

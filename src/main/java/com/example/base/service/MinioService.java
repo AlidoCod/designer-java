@@ -1,4 +1,4 @@
-package com.example.base.client.minio;
+package com.example.base.service;
 
 import com.example.base.util.ContentTypeUtils;
 import io.minio.*;
@@ -19,9 +19,11 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class MinioClient {
+public class MinioService {
 
-    private final io.minio.MinioClient minioClient;
+    private static final String CHUNK_SUFFIX = "chunk_";
+
+    private final MinioClient minioClient;
 
     public void upload(String bucket, String srcPath, String destPath) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         String contentType = ContentTypeUtils.getContentType(srcPath);
@@ -68,7 +70,6 @@ public class MinioClient {
                         .build());
     }
 
-    public static final String CHUNK_SUFFIX = "chunk_";
 
     public void merge(String bucket, String path, String name, int maxIndex) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         List<ComposeSource> list = new ArrayList<>();

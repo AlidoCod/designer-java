@@ -1,4 +1,4 @@
-package com.example.base.netty;
+package com.example.base.netty.handler;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;

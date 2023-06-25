@@ -1,11 +1,11 @@
-package com.example.base.bean.entity.base;
+package com.example.base.bean.entity.enums;
 
 public enum Role {
     /**
      *
      */
-    User,
-    Admin;
+    USER,
+    ADMIN;
 
     public static Role search(int value) {
         for (final Role role : values()) {

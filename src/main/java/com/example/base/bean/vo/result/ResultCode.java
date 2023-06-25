@@ -1,4 +1,4 @@
-package com.example.base.vo.result;
+package com.example.base.bean.vo.result;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

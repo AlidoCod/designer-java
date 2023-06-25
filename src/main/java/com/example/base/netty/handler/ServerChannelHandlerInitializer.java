@@ -1,4 +1,4 @@
-package com.example.base.netty;
+package com.example.base.netty.handler;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -9,10 +9,13 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 
+/**
+ * 初始化管道及管道处理器
+ */
 public class ServerChannelHandlerInitializer extends ChannelInitializer<SocketChannel> {
 
     @Override
-    protected void initChannel(SocketChannel socketChannel) throws Exception {
+    protected void initChannel(SocketChannel socketChannel) {
 
         /*
         * Http请求处理

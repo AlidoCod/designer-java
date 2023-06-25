@@ -1,36 +1,40 @@
-package com.example.base.vo.result;
+package com.example.base.bean.vo.result;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.Getter;
 
-import java.io.Serializable;
 import java.util.Date;
 
+@Schema(description = "返回体")
 @Data
 @Getter
-@JsonInclude
-public class Result<T> implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+//忽略空值
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Result<T> {
 
     /**
      * 状态码
      */
+    @Schema(description = "状态码")
     private int code;
 
     /**
      * 状态信息
      */
+    @Schema(description = "状态信息")
     private String msg;
 
 
     /**
      *
      */
+    @Schema(description = "处理时间")
     private Date time;
 
 
+    @Schema(description = "数据信息")
     private T data;
 
     private Result() {
@@ -79,16 +83,16 @@ public class Result<T> implements Serializable {
         return new Result<>(resultCode, msg);
     }
 
-    public static <T> Result<T> data(T data) {
-        return data(data, "处理成功");
+    public static <T> Result<T> success() {
+        return new Result<>(200, null, null);
+    }
+
+    public static  <T> Result<T> data(T data) {
+        return new Result<>(200, data, null);
     }
 
     public static <T> Result<T> data(T data, String msg) {
-        return data(ResultCode.SUCCESS.code, data, msg);
-    }
-
-    public static <T> Result<T> data(int code, T data, String msg) {
-        return new Result<>(code, data, data == null ? "承载数据为空" : msg);
+        return new Result<>(200, data, msg);
     }
 
     public static <T> Result<T> fail() {
@@ -109,6 +113,10 @@ public class Result<T> implements Serializable {
 
     public static <T> Result<T> fail(IResultCode resultCode, String msg) {
         return new Result<>(resultCode, msg);
+    }
+
+    public static <T> Result<T> error() {
+        return new Result<>(500, null, "服务器内部异常，请联系管理员");
     }
 
     public static <T> Result<T> condition(boolean flag) {

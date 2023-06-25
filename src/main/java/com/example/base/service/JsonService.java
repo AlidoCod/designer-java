@@ -1,23 +1,19 @@
-package com.example.base.util;
+package com.example.base.service;
 
 import com.example.base.exception.GlobalRuntimeException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class JsonUtils {
+@RequiredArgsConstructor
+public class JsonService {
 
-    private static ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
-    @Autowired
-    public void setObjectMapper(ObjectMapper objectMapper) {
-        JsonUtils.objectMapper = objectMapper;
-    }
-
-    public static <T> String toJson(T value) {
+    public <T> String toJson(T value) {
         try {
             return value.getClass() == String.class ? (String) value : objectMapper.writeValueAsString(value);
         } catch (Exception ex) {

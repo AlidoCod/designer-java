@@ -1,4 +1,5 @@
-package org.example;
+package com.example.base.conf;
+
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;

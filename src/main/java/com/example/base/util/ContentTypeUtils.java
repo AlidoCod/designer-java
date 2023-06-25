@@ -5,7 +5,7 @@ import com.j256.simplemagic.ContentInfo;
 import com.j256.simplemagic.ContentInfoUtil;
 import org.springframework.http.MediaType;
 
-public class ContentTypeUtil {
+public class ContentTypeUtils {
 
     /**
      * 若传入Null值则返回初始MimeType

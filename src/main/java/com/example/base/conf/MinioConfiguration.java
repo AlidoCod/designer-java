@@ -1,4 +1,4 @@
-package org.demo.config;
+package com.example.base.conf;
 
 import io.minio.MinioClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
  * Minio 对象存储文件系统连接
  */
 @Configuration
-public class MinioConfig {
+public class MinioConfiguration {
 
     @Value("${minio.socket}")
     private String socket;
