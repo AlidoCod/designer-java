@@ -1,5 +1,6 @@
 package com.example.base.netty.handler;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -7,12 +8,18 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
-import io.netty.handler.timeout.IdleStateHandler;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 /**
  * 初始化管道及管道处理器
  */
+@ChannelHandler.Sharable
+@Component
+@RequiredArgsConstructor
 public class ServerChannelHandlerInitializer extends ChannelInitializer<SocketChannel> {
+
+    final ServerListenerHandler serverListenerHandler;
 
     @Override
     protected void initChannel(SocketChannel socketChannel) {
@@ -32,9 +39,9 @@ public class ServerChannelHandlerInitializer extends ChannelInitializer<SocketCh
         * 心跳处理
         * */
         //心跳事件触发
-        pipeline.addLast(new IdleStateHandler(8, 10, 12));
+        //pipeline.addLast(new IdleStateHandler(8, 10, 12));
         //心跳事件处理器
-        pipeline.addLast(new HeartBeatHandler());
+        //pipeline.addLast(new HeartBeatHandler());
 
         /*
         * WebSocket处理
@@ -42,6 +49,6 @@ public class ServerChannelHandlerInitializer extends ChannelInitializer<SocketCh
         //websocket协议处理器
         pipeline.addLast(new WebSocketServerProtocolHandler("/ws"));
         //协议事件处理器
-        pipeline.addLast(new ServerListenerHandler());
+        pipeline.addLast(serverListenerHandler);
     }
 }

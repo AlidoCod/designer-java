@@ -63,6 +63,10 @@ public class RedisStringClient {
         return stringRedisTemplate.opsForValue().decrement(key);
     }
 
+    public Long decrease(String key, Long offset) {
+        return stringRedisTemplate.opsForValue().decrement(key, offset);
+    }
+
     /**
      * 避免String对象转化Json时发生异常
      */
@@ -98,7 +102,12 @@ public class RedisStringClient {
     }
 
     public <T> List<T> gets(String pattern, Class<T> clazz) {
-        Set<String> keys = stringRedisTemplate.execute((RedisCallback<Set<String>>) connection -> {
+        Set<String> keys = keys(pattern);
+        return keys.stream().map(o -> get(o, clazz)).collect(Collectors.toList());
+    }
+
+    public Set<String> keys(String pattern) {
+        return stringRedisTemplate.execute((RedisCallback<Set<String>>) connection -> {
             Set<String> keysTmp = new HashSet<>();
             Cursor<byte[]> cursor = connection.scan(ScanOptions.scanOptions().match(pattern).count(1000).build());
             while (cursor.hasNext()) {
@@ -106,7 +115,6 @@ public class RedisStringClient {
             }
             return keysTmp;
         });
-        return keys.stream().map(o -> get(o, clazz)).collect(Collectors.toList());
     }
 
     public <T> T get(String prefix, String suffix, Class<T> clazz) {

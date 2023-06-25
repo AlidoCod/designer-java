@@ -53,7 +53,7 @@ public class ManagerMessageController {
         return Result.success();
     }
 
-    @Aggregation(path = "notice-message/public", method = RequestMethod.POST, summary = "发布通知给特定用户")
+    @Aggregation(path = "notice-message/publish", method = RequestMethod.POST, summary = "发布通知给特定用户")
     public Result publishNotice(@RequestBody SysNoticeMessageDto noticeMessageDto) {
         messageService.publishSysNoticeMessage(noticeMessageDto);
         return Result.success();

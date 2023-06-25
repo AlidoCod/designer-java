@@ -18,6 +18,7 @@ public class WebsocketServerConfiguration {
 
     final NettyProperties nettyProperties;
 
+    final ServerChannelHandlerInitializer serverChannelHandlerInitializer;
     /**
      * boss 线程池
      * 负责客户端连接
@@ -48,7 +49,7 @@ public class WebsocketServerConfiguration {
                 .group(boosGroup, workerGroup)   // 指定使用的线程组
                 .channel(NioServerSocketChannel.class) // 指定使用的通道
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, nettyProperties.getTimeout()) // 指定连接超时时间
-                .childHandler(new ServerChannelHandlerInitializer()) // 指定worker处理器
+                .childHandler(serverChannelHandlerInitializer) // 指定worker处理器
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
         return serverBootstrap;
     }

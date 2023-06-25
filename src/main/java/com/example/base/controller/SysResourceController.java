@@ -31,13 +31,13 @@ public class SysResourceController {
         return id == null ? Result.success(String.valueOf(true)) : Result.data(id, String.valueOf(false));
     }
 
-    @Aggregation(path = "/upload", method = RequestMethod.POST)
+    @Aggregation(path = "/upload", method = RequestMethod.POST, summary = "上传资源")
     public Result upload(@RequestParam(value = "md5", required = false) String md5, @RequestParam("suffix")String suffix, @RequestPart(value = "file")MultipartFile file) {
         Long id = resourceService.upload(md5, suffix, file);
         return Result.success(String.valueOf(id));
     }
 
-    @Aggregation(path = "/download", method = RequestMethod.GET)
+    @Aggregation(path = "/download", method = RequestMethod.GET, summary = "下载资源")
     public void download(@RequestParam("id") Long id, HttpServletResponse response) {
         resourceService.download(response, id);
     }

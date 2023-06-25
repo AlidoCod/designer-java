@@ -23,7 +23,7 @@ public class JsonService {
         }
     }
 
-    private <T> T parseJson(String value, Class<T> clazz) {
+    public  <T> T toPojo(String value, Class<T> clazz) {
         try {
             return clazz == String.class ? (T) value : objectMapper.readValue(value, clazz);
         } catch (Exception ex) {

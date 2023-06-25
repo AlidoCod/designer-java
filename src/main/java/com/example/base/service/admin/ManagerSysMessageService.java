@@ -43,22 +43,22 @@ public class ManagerSysMessageService {
 
     public void publishSysNoticeMessage(SysNoticeMessageDto sysNoticeMessageDto) {
         SysMessage sysMessage = BeanCopyUtils.copy(sysNoticeMessageDto, SysMessage.class);
-        sysMessage.setMessageType(MessageType.SYSTEM_NOTICE);
-        sysMessage.setMessageCondition(MessageCondition.NOT_READ);
-        //若在线，则直接发送消息
-        Channel channel = UserConnectPool.getChannel(sysNoticeMessageDto.getReceiverId());
-        if (channel != null) {
-            SysNoticeMessageVo vo = BeanCopyUtils.copy(sysNoticeMessageDto, SysNoticeMessageVo.class);
-            vo.setCreateTime(LocalDateTime.now());
-            channel.writeAndFlush(jsonService.toJson(vo));
-        }
-        messageRepository.insert(sysMessage);
+        publishSysNoticeMessage(sysMessage);
     }
 
     public void publishSysNoticeMessage(SysMessage sysMessage) {
         sysMessage.setMessageType(MessageType.SYSTEM_NOTICE);
         sysMessage.setMessageCondition(MessageCondition.NOT_READ);
+        //若在线，则直接发送消息
+        Channel channel = UserConnectPool.getChannel(sysMessage.getReceiverId());
+        if (channel != null) {
+            SysNoticeMessageVo vo = BeanCopyUtils.copy(sysMessage, SysNoticeMessageVo.class);
+            vo.setCreateTime(LocalDateTime.now());
+            channel.writeAndFlush(jsonService.toJson(vo));
+        }
         messageRepository.insert(sysMessage);
+        //记录未读通知数
+        redisStringClient.increase(RedisConstant.NOTICE_ID + sysMessage.getReceiverId());
     }
 
     public Page<SysBroadcastMessage> queryAllBroadcastMessage(BasePage basePage) {

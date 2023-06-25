@@ -30,7 +30,7 @@ public class SysMessage extends BaseEntity {
     }
 
     public static SysMessage sendNormalMessage(Long senderId, Long receiverId, Long annexId, String message) {
-        return new SysMessage(senderId, receiverId, annexId, null, message, MessageType.NORMAL_MESSAGE, MessageCondition.NOT_READ);
+        return new SysMessage(senderId, receiverId, annexId, null, message, MessageType.CHAT_MESSAGE, MessageCondition.NOT_READ);
     }
 
     public void notSend() {
