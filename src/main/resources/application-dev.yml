@@ -1,5 +1,8 @@
 server:
   port: 80
+QR:
+  uri: http://192.168.3.254:80
+  route: /pay?money=
 
 spring:
   datasource:

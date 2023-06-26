@@ -4,6 +4,7 @@ import com.example.base.annotation.Aggregation;
 import com.example.base.controller.bean.dto.user.RegisterDto;
 import com.example.base.controller.bean.vo.base.Result;
 import com.example.base.service.plain.AuthenticationService;
+import com.example.base.service.plain.QRCodeService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +31,22 @@ import java.util.Optional;
 public class GenericController {
 
     final AuthenticationService authenticationService;
+
+    final QRCodeService qrCodeService;
+
+    @Aggregation(path = "/QRCode", method = RequestMethod.GET,
+        summary = "生成二维码"
+    )
+    public void generateQRCode(@RequestParam("money") Long money, HttpServletResponse response) {
+        qrCodeService.generatePayQRCode(response, money);
+    }
+
+    @Hidden
+    @Aggregation(path = "/pay", method = RequestMethod.GET)
+    public String pay(@RequestParam("money") Long money) {
+        String format = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>支付成功</title></head><body><h1>支付成功</h1><p>谢谢你的付款。您的交易已经完成，您的需求将很快得到处理。</p><p>支付的金额为: %d</p><p>如果您有任何问题或疑虑，请通过[8848-钛合金手机]与我们联系.</p></body></html>";
+        return String.format(format, money);
+    }
 
     @Hidden
     @Aggregation(path = "/success", method = RequestMethod.POST, summary = "登录成功返回接口")
