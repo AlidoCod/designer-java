@@ -1,77 +1,91 @@
 package com.example.base.service.admin;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.example.base.bean.dto.ConfirmSysUserInfoDto;
-import com.example.base.bean.dto.base.BasePage;
+import com.example.base.bean.entity.ExamineUser;
 import com.example.base.bean.entity.SysMessage;
 import com.example.base.bean.entity.SysUser;
-import com.example.base.bean.vo.SysUserVo;
-import com.example.base.client.redis.RedisStringClient;
+import com.example.base.bean.entity.enums.ExamineCondition;
+import com.example.base.constant.GenericConstant;
 import com.example.base.constant.RedisConstant;
+import com.example.base.controller.bean.dto.base.BasePage;
+import com.example.base.controller.bean.dto.user.RejectSysUserUpdateDto;
+import com.example.base.exception.GlobalRuntimeException;
+import com.example.base.repository.ExamineUserRepository;
 import com.example.base.repository.SysMessageRepository;
 import com.example.base.repository.SysUserRepository;
+import com.example.base.util.BeanCopyUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ManagerSysUserService{
 
-    final RedisStringClient redisStringClient;
     final SysUserRepository userRepository;
     final SysMessageRepository messageRepository;
     final ApplicationContext applicationContext;
     final ManagerSysMessageService sysMessageService;
-    public Page query(BasePage basePage) {
-        List<SysUserVo> list = redisStringClient.gets(RedisConstant.UPDATE_USER_SET + "*", SysUserVo.class);
-        log.debug(String.valueOf(list.size()));
-        Page page = basePage.getPage();
-        page.setRecords(list);
+    final ExamineUserRepository examineUserRepository;
+    public Page<ExamineUser> query(BasePage basePage) {
+        Page<ExamineUser> page = basePage.<ExamineUser>getPage();
+        page = examineUserRepository.selectPage(page,
+                Wrappers.<ExamineUser>lambdaQuery()
+                        .eq(ExamineUser::getExamineCondition, ExamineCondition.ING)
+        );
         return page;
     }
 
+
+    final Object lock = new Object();
     /**
-     * 确认更新
+     * 确认更新, 线程安全
      * 确认后缓存要记得删除
-     * @param id
      */
+    @Transactional
     @CacheEvict(value = RedisConstant.CACHE_USER_ID, key = "#root.args[0]")
-    public void confirm(Long id) {
+    public void accept(Long id) {
         SysUser user;
-        //避免多线程重复更新
-        synchronized (this) {
-            user = redisStringClient.get(RedisConstant.UPDATE_USER_SET + id, SysUser.class);
-            if (user == null) {
-                return;
+        //上锁，避免重复更新
+        synchronized (lock) {
+            ExamineUser examineUser = examineUserRepository.selectById(id);
+            if (ExamineCondition.ING.equals(examineUser.getExamineCondition())) {
+                user = BeanCopyUtils.copy(examineUser, SysUser.class);
+                //设置真ID
+                user.setId(examineUser.getCheatId());
+                //更新原数据库数据
+                userRepository.updateById(user);
+                //修改审核状态
+                ExamineUser update = new ExamineUser();
+                update.setExamineCondition(ExamineCondition.YES);
+                update.setId(id);
+                examineUserRepository.updateById(update);
             }
-            redisStringClient.delete(RedisConstant.UPDATE_USER_SET + id);
+            else {
+                throw GlobalRuntimeException.of("请勿重复点击，多线程重复更新!");
+            }
         }
-        userRepository.updateById(user);
     }
 
     /**
      * 拒绝更新
-     * @param confirmSysUserInfoDto
      */
-    public void reject(ConfirmSysUserInfoDto confirmSysUserInfoDto) {
-        SysMessage sysMessage = SysMessage.sendSystemNoticeMessage(confirmSysUserInfoDto.getId(), confirmSysUserInfoDto.getTitle(), confirmSysUserInfoDto.getMessage());
+    @Transactional
+    public void reject(RejectSysUserUpdateDto rejectSysUserUpdateDto) {
+        //包装成通知
+        SysMessage sysMessage = SysMessage.sendSystemNoticeMessage(rejectSysUserUpdateDto.getUserId(), GenericConstant.NOT_EXAMINE, rejectSysUserUpdateDto.getMessage());
         sysMessageService.publishSysNoticeMessage(sysMessage);
-        redisStringClient.delete(RedisConstant.UPDATE_USER_SET + confirmSysUserInfoDto.getId());
-    }
-
-    public void confirm(ConfirmSysUserInfoDto messageDto) {
-        ManagerSysUserService sysUserService = applicationContext.getBean(ManagerSysUserService.class);
-        if (messageDto.getMessage() == null) {
-            sysUserService.confirm(messageDto.getId());
-        }else {
-            sysUserService.reject(messageDto);
-        }
+        //修改审核状态
+        ExamineUser examineUser = new ExamineUser();
+        examineUser.setId(rejectSysUserUpdateDto.getId());
+        examineUser.setMessage(rejectSysUserUpdateDto.getMessage());
+        examineUser.setExamineCondition(ExamineCondition.NO);
+        examineUserRepository.updateById(examineUser);
     }
 
 }

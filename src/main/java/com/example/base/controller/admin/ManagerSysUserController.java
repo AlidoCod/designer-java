@@ -2,9 +2,9 @@ package com.example.base.controller.admin;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.base.annotation.Aggregation;
-import com.example.base.bean.dto.ConfirmSysUserInfoDto;
-import com.example.base.bean.dto.base.BasePage;
-import com.example.base.bean.vo.result.Result;
+import com.example.base.controller.bean.dto.base.BasePage;
+import com.example.base.controller.bean.dto.user.RejectSysUserUpdateDto;
+import com.example.base.controller.bean.vo.base.Result;
 import com.example.base.service.admin.ManagerSysUserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
 @Tag(name = "管理用户")
@@ -34,9 +35,15 @@ public class ManagerSysUserController {
     /**
      * TODO: 2023/6/21 拒绝，消息提醒
      */
-    @Aggregation(path = "/confirm", method = RequestMethod.POST, summary = "确认更新", description = "若提供消息字段则为拒绝")
-    public Result confirm(@RequestBody ConfirmSysUserInfoDto messageDto) {
-        managerSysUserService.confirm(messageDto);
-        return Result.success();
+    @Aggregation(path = "/accept", method = RequestMethod.GET, summary = "审核通过")
+    public Result accept(@RequestParam("id")Long id) {
+        managerSysUserService.accept(id);
+        return Result.ok();
+    }
+
+    @Aggregation(path = "/reject", method = RequestMethod.POST, summary = "审核失败")
+    public Result reject(@RequestBody RejectSysUserUpdateDto rejectSysUserUpdateDto) {
+        managerSysUserService.reject(rejectSysUserUpdateDto);
+        return Result.ok();
     }
 }

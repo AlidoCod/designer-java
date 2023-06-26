@@ -1,10 +1,10 @@
 package com.example.base.controller.user;
 
 import com.example.base.annotation.Aggregation;
-import com.example.base.bean.dto.SysUserUpdateDto;
-import com.example.base.bean.vo.SysUserVo;
-import com.example.base.bean.vo.result.Result;
-import com.example.base.service.SysUserService;
+import com.example.base.controller.bean.dto.user.SysUserUpdateDto;
+import com.example.base.controller.bean.vo.SysUserVo;
+import com.example.base.controller.bean.vo.base.Result;
+import com.example.base.service.user.SysUserService;
 import com.example.base.util.SecurityContextUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class SysUserInfoController {
     @Aggregation(path = "/update", method = RequestMethod.POST, summary = "更新用户信息", description = "传入需要更新的字段")
     public Result update(@RequestBody SysUserUpdateDto updateDto) {
         userService.update(SecurityContextUtils.getSysUser().getId(), updateDto);
-        return Result.success();
+        return Result.ok();
     }
 
     @Aggregation(path = "/query", method = RequestMethod.GET, summary = "查询用户信息", description = "无参时获取个人信息, 有参获取他人信息")

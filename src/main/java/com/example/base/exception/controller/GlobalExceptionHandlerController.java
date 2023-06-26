@@ -1,6 +1,6 @@
 package com.example.base.exception.controller;
 
-import com.example.base.bean.vo.result.Result;
+import com.example.base.controller.bean.vo.base.Result;
 import com.example.base.exception.GlobalRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.HttpMediaTypeNotSupportedException;

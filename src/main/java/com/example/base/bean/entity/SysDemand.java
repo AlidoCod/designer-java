@@ -14,6 +14,7 @@ import lombok.*;
 @Data
 public class SysDemand extends BaseEntity {
 
+    Long userId;
     String title;
     String theme;
     String body;

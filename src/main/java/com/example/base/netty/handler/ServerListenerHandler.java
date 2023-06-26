@@ -1,13 +1,13 @@
 package com.example.base.netty.handler;
 
-import com.example.base.bean.vo.result.Result;
+import com.example.base.controller.bean.vo.base.Result;
 import com.example.base.client.redis.RedisStringClient;
 import com.example.base.constant.RedisConstant;
 import com.example.base.netty.pojo.DataContent;
 import com.example.base.netty.pojo.MessageAction;
 import com.example.base.netty.pojo.UserConnectPool;
 import com.example.base.repository.SysMessageRepository;
-import com.example.base.service.JsonService;
+import com.example.base.service.plain.JsonService;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -79,7 +79,7 @@ public class ServerListenerHandler extends SimpleChannelInboundHandler<TextWebSo
              * */
             log.debug("收到来自channel 为["+channel+"]的心跳包"+dataContent);
             channel.writeAndFlush(new TextWebSocketFrame(
-                    jsonService.toJson(Result.success("已收到心跳包...返回心跳包"))
+                    jsonService.toJson(Result.ok("已收到心跳包...返回心跳包"))
             ));
             log.debug("已返回心跳包");
         }
@@ -124,7 +124,7 @@ public class ServerListenerHandler extends SimpleChannelInboundHandler<TextWebSo
         Long notice = redisStringClient.get(RedisConstant.NOTICE_ID + userId, Long.class);
         if (notice != 0L) {
             String s = String.format("你有%d条通知未读!", notice);
-            channel.writeAndFlush(new TextWebSocketFrame(jsonService.toJson(Result.success(s))));
+            channel.writeAndFlush(new TextWebSocketFrame(jsonService.toJson(Result.ok(s))));
         }
         Set<String> chats = redisStringClient.keys(RedisConstant.CHAT + "*::" + userId);
         long chat = 0L;
@@ -133,7 +133,7 @@ public class ServerListenerHandler extends SimpleChannelInboundHandler<TextWebSo
         }
         if (chat != 0L) {
             String s = String.format("你有%d条聊天消息未读!", chat);
-            channel.writeAndFlush(new TextWebSocketFrame(jsonService.toJson(Result.success(s))));
+            channel.writeAndFlush(new TextWebSocketFrame(jsonService.toJson(Result.ok(s))));
         }
     }
 

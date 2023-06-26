@@ -14,6 +14,6 @@ import lombok.*;
 @Data
 public class SysCollectDemand extends BaseEntity {
 
-    Long userId;
     Long demandId;
+    Long userId;
 }

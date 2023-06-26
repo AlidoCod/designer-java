@@ -2,7 +2,7 @@ package com.example.base.filter;
 
 import com.example.base.bean.entity.SysUser;
 import com.example.base.bean.pojo.JwtUser;
-import com.example.base.service.JwtService;
+import com.example.base.service.plain.JwtService;
 import com.example.base.util.BeanCopyUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

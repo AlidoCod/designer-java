@@ -1,20 +1,24 @@
 package com.example.base.service.user;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.example.base.bean.SignNoticeMessageDto;
-import com.example.base.bean.dto.QueryChatMessageDto;
-import com.example.base.bean.dto.QueryNoticeMessageDto;
-import com.example.base.bean.dto.SignChatMessageDto;
-import com.example.base.bean.dto.SysMessageDto;
+import com.example.base.controller.bean.dto.message.SignNoticeMessageDto;
+import com.example.base.controller.bean.dto.message.QueryChatMessageDto;
+import com.example.base.controller.bean.dto.message.QueryNoticeMessageDto;
+import com.example.base.controller.bean.dto.message.SignChatMessageDto;
+import com.example.base.controller.bean.dto.message.SysMessageDto;
 import com.example.base.bean.entity.SysMessage;
 import com.example.base.bean.entity.enums.MessageCondition;
 import com.example.base.bean.entity.enums.MessageType;
-import com.example.base.bean.vo.SysMessageVo;
+import com.example.base.bean.pojo.SysBroadcastMessage;
+import com.example.base.controller.bean.vo.SysMessageVo;
+import com.example.base.client.redis.RedisBitMapClient;
 import com.example.base.client.redis.RedisStringClient;
 import com.example.base.constant.RedisConstant;
 import com.example.base.netty.pojo.UserConnectPool;
 import com.example.base.repository.SysMessageRepository;
-import com.example.base.service.JsonService;
+import com.example.base.service.plain.JsonService;
 import com.example.base.util.BeanCopyUtils;
 import com.example.base.util.SecurityContextUtils;
 import io.netty.channel.Channel;
@@ -26,8 +30,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -108,15 +113,40 @@ public class SysMessageService {
 
     public Page<SysMessage> queryNoticeMessage(QueryNoticeMessageDto dto) {
         Page<SysMessage> page = dto.getPage();
-        List<SysMessage> sysMessages = messageRepository.selectByMap(Map.of("receiver_id", dto.getReceiverId(), "message_type", MessageType.SYSTEM_NOTICE));
-        page.setRecords(sysMessages);
-        return page;
+        LambdaQueryWrapper<SysMessage> lambda = Wrappers.<SysMessage>lambdaQuery()
+                .eq(SysMessage::getReceiverId, dto.getReceiverId())
+                .eq(SysMessage::getMessageCondition, MessageType.SYSTEM_NOTICE)
+                .orderByDesc(SysMessage::getCreateTime);
+        return messageRepository.selectPage(page, lambda);
     }
 
     public Page<SysMessage> queryChatMessage(QueryChatMessageDto dto) {
         Page<SysMessage> page = dto.getPage();
-        List<SysMessage> sysMessages = messageRepository.selectByMap(Map.of("sender_id", dto.getSenderId(), "receiver_id", dto.getReceiverId(), "message_type", MessageType.CHAT_MESSAGE));
-        page.setRecords(sysMessages);
-        return page;
+        LambdaQueryWrapper<SysMessage> lambda = Wrappers.<SysMessage>lambdaQuery()
+                .eq(SysMessage::getSenderId, dto.getSenderId())
+                .eq(SysMessage::getReceiverId, dto.getReceiverId())
+                .eq(SysMessage::getMessageCondition, MessageType.CHAT_MESSAGE)
+                .orderByDesc(SysMessage::getCreateTime);
+        return messageRepository.selectPage(page, lambda);
+    }
+
+    final RedisBitMapClient bitMapClient;
+
+    public List<SysBroadcastMessage> queryBroadcastMessage(Long userId) {
+        Set<String> keys = redisStringClient.keys(RedisConstant.BROADCAST_MESSAGE + "*");
+        List<SysBroadcastMessage> list = new ArrayList<>();
+        for (var key : keys) {
+            String id = key.substring(key.lastIndexOf(':') + 1);
+            Boolean flag = bitMapClient.get(RedisConstant.BROADCAST_BITMAP + id, userId);
+            if (!flag) {
+                list.add(redisStringClient.get(RedisConstant.BROADCAST_MESSAGE + id, SysBroadcastMessage.class));
+            }
+        }
+        return list;
+    }
+
+
+    public void dontRemindBroadcastMessage(Long userId, Long msgId) {
+        bitMapClient.set(RedisConstant.BROADCAST_BITMAP + msgId, userId);
     }
 }

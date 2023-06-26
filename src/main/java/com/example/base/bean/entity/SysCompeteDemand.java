@@ -16,5 +16,6 @@ public class SysCompeteDemand extends BaseEntity {
 
     Long competitorId;
     Long demandId;
+    String description;
     Long price;
 }

@@ -1,20 +1,20 @@
 package com.example.base.service.admin;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.example.base.bean.dto.SysBroadcastMessageDto;
-import com.example.base.bean.dto.SysNoticeMessageDto;
-import com.example.base.bean.dto.UpdateSysBroadcastMessageDto;
-import com.example.base.bean.dto.base.BasePage;
+import com.example.base.controller.bean.dto.message.SysBroadcastMessageDto;
+import com.example.base.controller.bean.dto.message.SysNoticeMessageDto;
+import com.example.base.controller.bean.dto.message.UpdateSysBroadcastMessageDto;
+import com.example.base.controller.bean.dto.base.BasePage;
 import com.example.base.bean.entity.SysMessage;
 import com.example.base.bean.entity.enums.MessageCondition;
 import com.example.base.bean.entity.enums.MessageType;
 import com.example.base.bean.pojo.SysBroadcastMessage;
-import com.example.base.bean.vo.SysNoticeMessageVo;
+import com.example.base.controller.bean.vo.SysNoticeMessageVo;
 import com.example.base.client.redis.RedisStringClient;
 import com.example.base.constant.RedisConstant;
 import com.example.base.netty.pojo.UserConnectPool;
 import com.example.base.repository.SysMessageRepository;
-import com.example.base.service.JsonService;
+import com.example.base.service.plain.JsonService;
 import com.example.base.util.BeanCopyUtils;
 import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;

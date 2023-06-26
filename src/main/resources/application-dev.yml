@@ -127,12 +127,26 @@ springdoc:
   api-docs:
     path: /v3/api-docs
   group-configs:
-    - group: 'default'
-      paths-to-match: '/**'
+    - group: '通用'
+      paths-to-match:
+        - '/**'
       packages-to-scan:
-        - com.example.base.controller
-        - com.example.base.bean.dto
-        - com.example.base.bean.vo
+        - com.example.base.controller.plain
+        - com.example.base.controller.bean
+    - group: '用户'
+      paths-to-match:
+        - '/user/**'
+      packages-to-scan:
+        - com.example.base.controller.user
+        - com.example.base.controller.bean
+    - group: '管理员'
+      paths-to-match:
+        - '/admin/**'
+      packages-to-scan:
+        - com.example.base.controller.admin
+        - com.example.base.controller.bean
+
+
 logging:
   charset:
     file: UTF-8

@@ -3,7 +3,7 @@ package com.example.base;
 import com.example.base.bean.Test;
 import com.example.base.bean.TestDto;
 import com.example.base.bean.entity.SysMessage;
-import com.example.base.service.JsonService;
+import com.example.base.service.plain.JsonService;
 import com.example.base.util.BeanCopyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package com.example.base.client.redis;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.example.base.service.JsonService;
+import com.example.base.service.plain.JsonService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

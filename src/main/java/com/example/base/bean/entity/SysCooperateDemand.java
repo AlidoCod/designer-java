@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 public class SysCooperateDemand extends BaseEntity {
 
     Long demandId;
+    Long userId;
+    Long designerId;
     Long money;
     LocalDateTime deadTime;
     Long worksId;
