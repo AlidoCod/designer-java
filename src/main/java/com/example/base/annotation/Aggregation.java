@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.lang.annotation.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 雷佳宝
@@ -55,4 +56,15 @@ public @interface Aggregation {
     String description() default "";
 
     String[] messages() default {};
+
+    /*
+    * 默认最大访问次数
+    * */
+    int permitsPerSecond() default 10;
+
+    long timeout() default 1000;
+
+    TimeUnit timeUnit() default TimeUnit.MILLISECONDS;
+
+    boolean limit() default true;
 }

@@ -25,10 +25,10 @@ public class SysResourceController {
 
     final SysResourceService resourceService;
 
-    @Aggregation(path = "/check", method = RequestMethod.GET, summary = "校验资源是否存在", description = "true: 校验成功, 无返回值，false: 检验失败, 返回已存在的文件ID")
+    @Aggregation(path = "/check", method = RequestMethod.GET, summary = "校验资源是否存在", description = "true: 校验成功, 返回ID，false: 检验失败")
     public Result check(@RequestParam("md5")String md5) {
         Long id = resourceService.check(md5);
-        return id == null ? Result.ok(String.valueOf(true)) : Result.data(id, String.valueOf(false));
+        return id != null ? Result.data(id, String.valueOf(true)) : Result.data(null, String.valueOf(false));
     }
 
     @Aggregation(path = "/upload", method = RequestMethod.POST, summary = "上传资源")
@@ -37,8 +37,16 @@ public class SysResourceController {
         return Result.ok(String.valueOf(id));
     }
 
-    @Aggregation(path = "/download", method = RequestMethod.GET, summary = "下载资源")
+    @Aggregation(path = "/download", method = RequestMethod.GET, summary = "下载资源(字节流)")
     public void download(@RequestParam("id") Long id, HttpServletResponse response) {
         resourceService.download(response, id);
+    }
+
+    @Aggregation(path = "/url", method = RequestMethod.GET,
+        summary = "下载资源(URL)"
+    )
+    public Result download(@RequestParam("id") Long id) {
+        String data = resourceService.download(id);
+        return Result.data(data);
     }
 }

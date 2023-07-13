@@ -5,6 +5,8 @@ import com.example.base.bean.entity.base.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @TableName(value = "examine_demand")
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -23,5 +25,6 @@ public class ExamineDemand extends BaseEntity {
     Long budget;
     Long annexId;
     String message;
+    LocalDateTime deadTime;
     Integer examineCondition;
 }

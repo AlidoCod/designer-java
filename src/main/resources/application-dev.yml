@@ -1,8 +1,6 @@
 server:
   port: 80
-QR:
-  uri: http://192.168.3.254:80
-  route: /pay?money=
+QR-route: /pay-success?id=%d&money=%s
 
 spring:
   datasource:
@@ -97,11 +95,11 @@ spring:
         # 每次拉取的消息数
         # 限流，如果严格控制消费顺序，这里应该填1，数值越大，消费处理速度越快。MQ会把这个数值的消息放到缓存当中。
         # 因此数值越大，内存占用越大，还需要考虑消费的速度
-        prefetch: 10
+        prefetch: 5
         # 并发数
-        concurrency: 5
+        concurrency: 2
         # 最大并发数
-        max-concurrency: 10
+        max-concurrency: 4
 
 
 mybatis-plus:
@@ -176,3 +174,8 @@ netty:
   timeout: 6000
   port: 81
   host: 127.0.0.1
+
+resource:
+  urlPath: /resource/**
+  # 最后的斜杠很重要
+  localPath: C:/Users/Administrator/Pictures/resource/

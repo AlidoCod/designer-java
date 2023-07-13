@@ -1,13 +1,12 @@
 package com.example.base.netty.handler;
 
-import com.example.base.controller.bean.vo.base.Result;
 import com.example.base.client.redis.RedisStringClient;
 import com.example.base.constant.RedisConstant;
 import com.example.base.netty.pojo.DataContent;
 import com.example.base.netty.pojo.MessageAction;
 import com.example.base.netty.pojo.UserConnectPool;
 import com.example.base.repository.SysMessageRepository;
-import com.example.base.service.plain.JsonService;
+import com.example.base.utils.JsonUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -20,6 +19,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 @ChannelHandler.Sharable
@@ -28,8 +28,7 @@ import java.util.Set;
 @Component
 public class ServerListenerHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
-    final JsonService jsonService;
-    final SysMessageRepository messageRepository;
+    final SysMessageRepository sysMessageRepository;
     final ThreadPoolTaskExecutor executor;
     final RedisStringClient redisStringClient;
 
@@ -54,87 +53,86 @@ public class ServerListenerHandler extends SimpleChannelInboundHandler<TextWebSo
          * 将实体类当中的userid和连接的Channel进行对应
          * */
         String content = msg.text();
-        DataContent dataContent = jsonService.toPojo(content, DataContent.class);
+        DataContent dataContent = JsonUtil.toPojo(content, DataContent.class);
         assert dataContent != null;
         Channel channel = ctx.channel();
         Integer action = dataContent.getAction();
-        /**
-         * 连接消息的处理
+        /*
+          连接消息的处理
          */
-        if(Objects.equals(action, MessageAction.CONNECT.type)){
+        if (Objects.equals(action, MessageAction.CONNECT.ACTION)) {
             //进行关联注册
-            Long userid = dataContent.getUserId();
-            AttributeKey<Long> key = AttributeKey.valueOf("userId");
-            ctx.channel().attr(key).setIfAbsent(userid);
-            UserConnectPool.getChannelMap().put(userid,channel);
+            Long userId = dataContent.getUserId();
+            //初始化channel
+            initChannel(userId, channel);
             //发送离线未读消息
-            messageReminder(userid, channel);
+            messageReminder(userId);
         }
-        /**
-         * 心跳处理
+        /*
+          心跳处理
          */
-        else if(Objects.equals(action, MessageAction.KEEPALIVE.type)){
-            /**
-             * 心跳包的处理
-             * */
-            log.debug("收到来自channel 为["+channel+"]的心跳包"+dataContent);
-            channel.writeAndFlush(new TextWebSocketFrame(
-                    jsonService.toJson(Result.ok("已收到心跳包...返回心跳包"))
-            ));
-            log.debug("已返回心跳包");
+        else if (Objects.equals(action, MessageAction.KEEPALIVE.ACTION)) {
+            /*
+              心跳包的处理
+              */
+            //log.debug("收到来自channel 为[" + channel.id().asLongText() + "]的心跳包");
+            UserConnectPool.send(channel, MessageAction.KEEPALIVE);
         }
     }
 
-    @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        //接收到请求
-        log.debug("有新的客户端链接：[{}]", ctx.channel().id().asLongText());
-    }
-
-    @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        String chanelId = ctx.channel().id().asLongText();
-        log.debug("客户端被移除：channel id 为："+chanelId);
-        removeUserId(ctx);
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace();
-        //发生了异常后关闭连接，同时从channelGroup移除
-        ctx.channel().close();
-        removeUserId(ctx);
-    }
-
-    /**
-     * 删除用户与channel的对应关系
-     */
-    private void removeUserId(ChannelHandlerContext ctx) {
+    private void initChannel(Long userId, Channel channel) {
         AttributeKey<Long> key = AttributeKey.valueOf("userId");
-        Long userId = ctx.channel().attr(key).get();
-        UserConnectPool.getChannelMap().remove(userId);
+        channel.attr(key).setIfAbsent(userId);
+        if (UserConnectPool.getChannel(userId) != null) {
+            UserConnectPool.remove(channel);
+        }
+        //初始化连接
+        UserConnectPool.getChannelMap().put(userId, channel);
+        //发送初始化成功消息
+        UserConnectPool.send(channel, MessageAction.CONNECT);
+        log.debug("连接初始化成功，userId: {}", userId);
+    }
+
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) {
+        //接收到请求
+        log.debug("新的客户端连接, channelId: {}", ctx.channel().id());
+    }
+
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) {
+        //正常移除channel
+        UserConnectPool.remove(ctx.channel());
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        log.error("", cause);
+        //移除异常channel
+        UserConnectPool.remove(ctx.channel());
     }
 
     /**
      * 提醒总计未读消息
-     * @param userId
-     * @param channel
      */
-    private void messageReminder(Long userId, Channel channel) {
-        Long notice = redisStringClient.get(RedisConstant.NOTICE_ID + userId, Long.class);
-        if (notice != 0L) {
-            String s = String.format("你有%d条通知未读!", notice);
-            channel.writeAndFlush(new TextWebSocketFrame(jsonService.toJson(Result.ok(s))));
-        }
+    private void messageReminder(Long userId) {
+        /*
+        * 通知未读数量
+        * */
+        Long noticeNums = 0L;
+        //避免noticeNums为空
+        noticeNums += Optional.ofNullable(redisStringClient.get(RedisConstant.NOTICE_ID + userId, Long.class)).orElse(0L);
+        UserConnectPool.send(userId, MessageAction.NOTICE_UNREAD_NUMS.ACTION, noticeNums);
+
+        /*
+        * 聊天消息未读数量
+        * */
         Set<String> chats = redisStringClient.keys(RedisConstant.CHAT + "*::" + userId);
-        long chat = 0L;
+        Long chatNums = 0L;
         for (String key : chats) {
-            chat += redisStringClient.get(key, Long.class);
+            chatNums += Optional.ofNullable(redisStringClient.get(key, Long.class)).orElse(0L);
         }
-        if (chat != 0L) {
-            String s = String.format("你有%d条聊天消息未读!", chat);
-            channel.writeAndFlush(new TextWebSocketFrame(jsonService.toJson(Result.ok(s))));
-        }
+        UserConnectPool.send(userId, MessageAction.CHAT_UNREAD_NUMS.ACTION, chatNums);
     }
 
 }

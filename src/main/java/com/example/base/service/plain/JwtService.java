@@ -4,7 +4,7 @@ import com.example.base.bean.entity.SysUser;
 import com.example.base.bean.entity.enums.Role;
 import com.example.base.bean.pojo.JwtUser;
 import com.example.base.exception.GlobalRuntimeException;
-import com.example.base.util.BeanCopyUtils;
+import com.example.base.utils.BeanCopyUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * TODO 完成JWT的验证服务
  * JWT工具类
  *
  * @author 雷佳宝
@@ -42,7 +41,7 @@ public class JwtService {
 
     public String generateToken(SysUser sysUser) {
         Map<String, Object> claims = new HashMap<>();
-        JwtUser user = BeanCopyUtils.copy(sysUser, JwtUser.class);
+        JwtUser user = BeanCopyUtil.copy(sysUser, JwtUser.class);
         claims.put(CLAIMS, user);
         Date now = new Date();
         String token = TOKEN_PREFIX +

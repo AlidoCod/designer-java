@@ -3,7 +3,7 @@ package com.example.base.filter;
 import com.example.base.bean.entity.SysUser;
 import com.example.base.bean.pojo.JwtUser;
 import com.example.base.service.plain.JwtService;
-import com.example.base.util.BeanCopyUtils;
+import com.example.base.utils.BeanCopyUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 从token中解析出username
         user = jwtService.parseToken(jwt);
         if (user != null && SecurityContextHolder.getContext().getAuthentication() == null){
-            SysUser sysUser = BeanCopyUtils.copy(user, SysUser.class);
+            SysUser sysUser = BeanCopyUtil.copy(user, SysUser.class);
             //log.debug("user: {}", sysUser);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     sysUser,

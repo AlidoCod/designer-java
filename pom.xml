@@ -90,6 +90,12 @@
             <version>4.1.92.Final</version>
         </dependency>
 
+        <!--rabbitMQ-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
         <!--spring-security-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -24,7 +24,6 @@ public class SysMessage extends BaseEntity {
     Integer messageType;
     Integer messageCondition;
 
-
     public static SysMessage sendSystemNoticeMessage(Long receiverId, String title, String message) {
         return new SysMessage(0L, receiverId, 0L, title, message, MessageType.SYSTEM_NOTICE, MessageCondition.NOT_READ);
     }

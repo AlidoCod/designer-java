@@ -1,7 +1,7 @@
 package com.example.base.client.redis;
 
 import com.example.base.client.bean.Consumer;
-import com.example.base.service.plain.JsonService;
+import com.example.base.utils.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -15,26 +15,25 @@ import java.util.Set;
 public class RedisSetClient {
 
     private final StringRedisTemplate stringRedisTemplate;
-    final JsonService jsonService;
 
     public <T> List<T> getMembers(String key, Class<T> clazz) {
         return Objects.requireNonNull(stringRedisTemplate.opsForSet().members(key))
-                .stream().map(o -> jsonService.toPojo(o, clazz)).toList();
+                .stream().map(o -> JsonUtil.toPojo(o, clazz)).toList();
     }
     // key userId username userId username
 
-    public <T> Boolean isMember(String key, String value) {
-        return stringRedisTemplate.opsForSet().isMember(key, jsonService.toJson(value));
+    public <T> Boolean isMember(String key, T value) {
+        return stringRedisTemplate.opsForSet().isMember(key, JsonUtil.toJson(value));
     }
 
     @SuppressWarnings("ConstantConditions")
     public <T> void addMember(String key, T value) {
-        stringRedisTemplate.opsForSet().add(key, jsonService.toJson(value));
+        stringRedisTemplate.opsForSet().add(key, JsonUtil.toJson(value));
     }
 
     @SuppressWarnings("ConstantConditions")
     public <T> Boolean removeMember(String key, T value) {
-        return stringRedisTemplate.opsForSet().remove(key, jsonService.toJson(value)) == 1;
+        return stringRedisTemplate.opsForSet().remove(key, JsonUtil.toJson(value)) == 1;
     }
 
     public Set<String> getCollectiveMembers(String key1, String key2) {

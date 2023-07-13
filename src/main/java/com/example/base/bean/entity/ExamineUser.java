@@ -15,10 +15,9 @@ public class ExamineUser extends BaseEntity {
     Long cheatId;
     String email;
     String tag;
-    String favour;
     String nickname;
     Long avatar;
-    String signature;
+    Long qualification;
     String message;
     Integer examineCondition;
 }

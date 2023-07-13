@@ -9,8 +9,7 @@ public class SysUserUpdateDto {
     @Email
     String email;
     String tag;
-    String favour;
     String nickname;
     Long avatar;
-    String signature;
+    Long qualification;
 }

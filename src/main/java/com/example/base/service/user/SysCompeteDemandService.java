@@ -5,11 +5,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.base.bean.entity.SysCompeteDemand;
 import com.example.base.controller.bean.dto.compete_demand.SysCompeteDemandInsertDto;
 import com.example.base.controller.bean.dto.compete_demand.SysCompeteDemandUpdateDto;
+import com.example.base.controller.bean.vo.SysCompeteDemandVo;
 import com.example.base.repository.SysCompeteDemandRepository;
-import com.example.base.util.BeanCopyUtils;
+import com.example.base.utils.BeanCopyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,26 +36,34 @@ public class SysCompeteDemandService {
     }
 
     public void insert(SysCompeteDemandInsertDto insertDto) {
-        SysCompeteDemand copy = BeanCopyUtils.copy(insertDto, SysCompeteDemand.class);
+        SysCompeteDemand copy = BeanCopyUtil.copy(insertDto, SysCompeteDemand.class);
         sysCompeteDemandRepository.insert(copy);
     }
 
-    public Page<SysCompeteDemand> queryByDemandId(Page<SysCompeteDemand> page, Long demandId) {
-        return sysCompeteDemandRepository.selectPage(page,
+    final BeanFactory beanFactory;
+
+    public List<SysCompeteDemandVo> queryByDemandId(Page<SysCompeteDemand> page, Long demandId) {
+        List<SysCompeteDemand> list = sysCompeteDemandRepository.selectPage(page,
                 Wrappers.<SysCompeteDemand>lambdaQuery()
                         .eq(SysCompeteDemand::getDemandId, demandId)
-                );
-    };
+        ).getRecords();
 
-    public Page<SysCompeteDemand> queryByUserId(Page<SysCompeteDemand> page, Long userId) {
-        return sysCompeteDemandRepository.selectPage(page,
+        return list.stream()
+                .map(o -> SysCompeteDemandVo.getInstance(beanFactory, o)).toList();
+    }
+
+    public List<SysCompeteDemandVo> queryByUserId(Page<SysCompeteDemand> page, Long userId) {
+        List<SysCompeteDemand> list = sysCompeteDemandRepository.selectPage(page,
                 Wrappers.<SysCompeteDemand>lambdaQuery()
                         .eq(SysCompeteDemand::getCompetitorId, userId)
-                );
+        ).getRecords();
+
+        return list.stream()
+                .map(o -> SysCompeteDemandVo.getInstance(beanFactory, o)).toList();
     }
 
     public void update(SysCompeteDemandUpdateDto updateDto) {
-        SysCompeteDemand copy = BeanCopyUtils.copy(updateDto, SysCompeteDemand.class);
+        SysCompeteDemand copy = BeanCopyUtil.copy(updateDto, SysCompeteDemand.class);
         sysCompeteDemandRepository.updateById(copy);
     }
 }

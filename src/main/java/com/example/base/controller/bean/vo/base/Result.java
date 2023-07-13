@@ -107,6 +107,10 @@ public class Result<T> {
         return new Result<>(code, null, msg);
     }
 
+    public static <T> Result<T> fail(int code, String msg, T data) {
+        return new Result<>(code, data, msg);
+    }
+
     public static <T> Result<T> fail(IResultCode resultCode) {
         return new Result<>(resultCode);
     }

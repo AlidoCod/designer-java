@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.base.bean.entity.base.BaseEntity;
 import com.example.base.bean.entity.enums.Role;
 import com.example.base.handler.RoleTypeHandler;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,13 +29,20 @@ public class SysUser extends BaseEntity implements UserDetails {
     Role role;
     String email;
     String tag;
-    String favour;
     String nickname;
     Long avatar;
-    String signature;
+    Long qualification;
+
+//    @TableField(exist = false)
+//    private Collection<? extends GrantedAuthority> authorities;
+//
+//    public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+//        this.authorities = List.of(new SimpleGrantedAuthority(role.name()));
+//    }
     /**
      * 权限控制
      */
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

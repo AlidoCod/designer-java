@@ -1,8 +1,7 @@
 package com.example.base.client.redis;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.example.base.service.plain.JsonService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.base.utils.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisCallback;
@@ -19,8 +18,6 @@ import java.util.Map;
 public class RedisHashClient {
 
     final StringRedisTemplate stringRedisTemplate;
-    final ObjectMapper objectMapper;
-    final JsonService jsonService;
 
     public <T> void putAll(String key, T obj) {
         try {
@@ -28,7 +25,7 @@ public class RedisHashClient {
             for (Field field : obj.getClass().getDeclaredFields()) {
                 //禁用安全检查
                 field.setAccessible(true);
-                map.put(field.getName(), jsonService.toJson(field.get(obj)));
+                map.put(field.getName(), JsonUtil.toJson(field.get(obj)));
                 //开启安全检查
                 field.setAccessible(false);
             }
@@ -39,7 +36,7 @@ public class RedisHashClient {
     }
 
     public <T> void put(String firstKey, String secondKey, T obj) {
-        stringRedisTemplate.opsForHash().put(firstKey, secondKey, jsonService.toJson(obj));
+        stringRedisTemplate.opsForHash().put(firstKey, secondKey, JsonUtil.toJson(obj));
     }
 
     public Map<String, String> getAll(String key) {

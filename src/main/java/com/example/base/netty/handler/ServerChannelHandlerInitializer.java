@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -38,10 +39,10 @@ public class ServerChannelHandlerInitializer extends ChannelInitializer<SocketCh
         /*
         * 心跳处理
         * */
-        //心跳事件触发
-        //pipeline.addLast(new IdleStateHandler(8, 10, 12));
+        //心跳事件触发, 指定0代表禁用
+        pipeline.addLast(new IdleStateHandler(0, 0, 12));
         //心跳事件处理器
-        //pipeline.addLast(new HeartBeatHandler());
+        pipeline.addLast(new HeartBeatHandler());
 
         /*
         * WebSocket处理

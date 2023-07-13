@@ -35,17 +35,10 @@ public class GenericController {
     final QRCodeService qrCodeService;
 
     @Aggregation(path = "/QRCode", method = RequestMethod.GET,
-        summary = "生成二维码"
+        summary = "生成支付二维码"
     )
-    public void generateQRCode(@RequestParam("money") Long money, HttpServletResponse response) {
-        qrCodeService.generatePayQRCode(response, money);
-    }
-
-    @Hidden
-    @Aggregation(path = "/pay", method = RequestMethod.GET)
-    public String pay(@RequestParam("money") Long money) {
-        String format = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>支付成功</title></head><body><h1>支付成功</h1><p>谢谢你的付款。您的交易已经完成，您的需求将很快得到处理。</p><p>支付的金额为: %d</p><p>如果您有任何问题或疑虑，请通过[8848-钛合金手机]与我们联系.</p></body></html>";
-        return String.format(format, money);
+    public void generateQRCode(@RequestParam("money") String money, @Parameter(description = "需求和支付订单一对一，直接传需求ID")@RequestParam("id")Long id, HttpServletResponse response) {
+        qrCodeService.generatePayQRCode(response, money, id);
     }
 
     @Hidden
@@ -95,7 +88,7 @@ public class GenericController {
 
     @Hidden
     @Aggregation(path = "/user/test", method = RequestMethod.GET, summary = "测试接口", description = "测试成功", messages = "你好，世界")
-    public Result userTest(@RequestParam("value") @Parameter(description = "xxx") int value) {
+    public Result userTest() {
         String s = null;
         Optional<String> optional = Optional.ofNullable(s);
         s = optional.orElse("xxx");
@@ -104,7 +97,7 @@ public class GenericController {
 
     @Hidden
     @Aggregation(path = "/admin/test", method = RequestMethod.GET, summary = "测试接口", description = "测试成功", messages = "你好，世界")
-    public Result adminTest(@RequestParam("value") @Parameter(description = "xxx") int value) {
+    public Result adminTest() {
         String s = null;
         Optional<String> optional = Optional.ofNullable(s);
         s = optional.orElse("xxx");

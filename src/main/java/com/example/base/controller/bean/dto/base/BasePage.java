@@ -16,6 +16,6 @@ public class BasePage {
     Integer size = 10;
 
     public <T> Page<T> getPage() {
-        return new Page<T>(current, size);
+        return new Page<>(current, size);
     }
 }

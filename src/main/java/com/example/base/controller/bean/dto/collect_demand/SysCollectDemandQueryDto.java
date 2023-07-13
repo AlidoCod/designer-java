@@ -1,6 +1,7 @@
 package com.example.base.controller.bean.dto.collect_demand;
 
 import com.example.base.controller.bean.dto.base.BasePage;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -8,5 +9,6 @@ import lombok.EqualsAndHashCode;
 @Data
 public class SysCollectDemandQueryDto extends BasePage {
 
+    @NotNull
     Long userId;
 }

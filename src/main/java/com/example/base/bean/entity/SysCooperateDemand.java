@@ -19,9 +19,14 @@ public class SysCooperateDemand extends BaseEntity {
     Long demandId;
     Long userId;
     Long designerId;
-    Long money;
-    LocalDateTime deadTime;
     Long worksId;
+    String deposit;
+    String money;
+    LocalDateTime deadTime;
     Integer worksCondition;
     Integer paymentCondition;
+    Integer grade;
+    String evaluation;
+    Long partOrder;
+    Long allOrder;
 }

@@ -1,6 +1,6 @@
 package com.example.base.service.plain;
 
-import com.example.base.util.ContentTypeUtils;
+import com.example.base.utils.ContentTypeUtil;
 import io.minio.*;
 import io.minio.errors.*;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class MinioService {
     private final MinioClient minioClient;
 
     public void upload(String bucket, String srcPath, String destPath) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        String contentType = ContentTypeUtils.getContentType(srcPath);
+        String contentType = ContentTypeUtil.getContentType(srcPath);
         minioClient.uploadObject(
                 UploadObjectArgs.builder()
                         .bucket(bucket)

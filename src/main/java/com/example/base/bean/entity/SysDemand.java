@@ -5,6 +5,8 @@ import com.example.base.bean.entity.base.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @TableName(value = "sys_demand")
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -22,4 +24,5 @@ public class SysDemand extends BaseEntity {
     Long budget;
     Long annexId;
     Integer demandCondition;
+    LocalDateTime deadTime;
 }
